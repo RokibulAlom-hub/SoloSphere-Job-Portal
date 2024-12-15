@@ -36,6 +36,11 @@ async function run() {
       const result = await jobscollection.insertOne(jobs)      
       res.send(result)
     })
+    // get all jobs
+    app.get('/alljobs',async(req,res) =>{
+      const result = await jobscollection.find().toArray();
+      res.send(result)
+    })
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
