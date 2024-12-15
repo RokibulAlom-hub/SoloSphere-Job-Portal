@@ -8,7 +8,7 @@ const JobCard = ({job}) => {
     category,
     min_price,
     max_price,
-    bid_count} = job;
+    bid_count} = job
   return (
     <Link
       to={`/job/1`}
@@ -30,8 +30,8 @@ const JobCard = ({job}) => {
 
         <p className='mt-2 text-sm text-gray-600 '>
           {
-            description
-          }
+            description.substring(0,70)
+          }...
         </p>
         <p className='mt-2 text-sm font-bold text-gray-600 '>
           {min_price - max_price}
