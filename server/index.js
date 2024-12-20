@@ -1,6 +1,6 @@
 const express = require('express')
 const cors = require('cors')
-const { MongoClient, ServerApiVersion } = require('mongodb')
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb')
 require('dotenv').config()
 
 const port = process.env.PORT || 9000
@@ -29,6 +29,7 @@ async function run() {
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
     const jobscollection = client.db('jobPortal').collection('alljobs');
+    const bidscollection = client.db('jobPortal').collection('bids');
     
     // create jobs
     app.post('/added-jobs',async(req,res) => {
@@ -46,6 +47,55 @@ async function run() {
       const email = req.params.email;
       const query = {'buyer.email': email};
       const result = await jobscollection.find(query).toArray();
+      res.send(result)
+    })
+    // delete a job post by id 
+    app.delete('/job/:id',async(req,res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await jobscollection.deleteOne(query)
+      res.send(result)
+    })
+    // get single data by id 
+    app.get('/job/:id',async(req,res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await jobscollection.findOne(query)
+      res.send(result)
+    })
+    // update data by put
+    app.put('/update-job/:id',async(req,res) => {
+      const id = req.params.id;
+      const jobData = req.body;
+      const updateData = {
+        $set: jobData,
+      }
+      const query = {_id: new ObjectId(id)}
+      const options = {upsert:true}
+      const result = await jobscollection.updateOne(query,updateData,options)
+      res.send(result)
+    })
+    // create bids in db and server
+    app.post('/added-bids',async(req,res) => {
+      const bids = req.body;
+      // check/validate same user cant apply in same job
+      const query = {email:bids?.email, job_id: bids?.job_id}
+      const alreadyExist = await bidscollection.findOne(query)
+      console.log('if already exist ',alreadyExist);
+      
+      if(alreadyExist)
+        return res
+        .status(400)
+        .send('Already Bids Exist')
+      
+      // this line is creating bids
+      const result = await bidscollection.insertOne(bids) 
+      // update the bid count 
+      const filter = {_id: new ObjectId(bids.job_id)}
+      const bidupdate = {
+        $inc:{bid_count:1}
+      }
+      const udpateBids = await jobscollection.updateOne(filter,bidupdate)
       res.send(result)
     })
   } finally {

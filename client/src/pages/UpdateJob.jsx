@@ -1,9 +1,65 @@
-import { useState } from 'react'
+import axios from 'axios'
+import { useContext, useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
+import { useNavigate, useParams } from 'react-router-dom'
+import { AuthContext } from '../providers/AuthProvider'
+import toast from 'react-hot-toast'
 
 const UpdateJob = () => {
+  const { user } = useContext(AuthContext)
   const [startDate, setStartDate] = useState(new Date())
+  const [job, setJob] = useState({})
+  const { id } = useParams()
+  const navigate =useNavigate()
+  useEffect(() => {
+    updateData()
+  }, [id])
+  const updateData = async () => {
+    try {
+      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/job/${id}`)
+      setJob(data)
+      setStartDate(new Date(data.datepicker))
+    }
+    catch (err) {
+      console.log(err.message);
+
+    }
+  }
+  const handleUpdatejob = async(e) =>{
+    e.preventDefault();
+    const form = e.target;
+    const job_title= form.job_title.value;
+    const email= form.email.value;
+    const datepicker=startDate
+    const category= form.category.value;
+    const description= form.description.value;
+    const min_price= parseFloat(form.min_price.value);
+    const max_price= parseFloat(form.max_price.value);
+    // console.log({job_title,email,datepicker,description,category,min_price,max_price});
+     const formData ={
+      job_title,
+      buyer:{
+        email,name:user?.displayName,photo:user?.photoURL
+      },
+      datepicker,
+      description,
+      category,
+      min_price,
+      max_price,
+    }
+    // make a post request
+   try{
+     await axios.put(`${import.meta.env.VITE_API_URL}/update-job/${id}`,formData)
+    form.reset()
+    toast.success('Updated  Successfully !')
+    navigate('/my-posted-jobs')
+   }
+   catch(err){
+    toast.error(err.messeage)
+   }
+  }
+
 
   return (
     <div className='flex justify-center items-center min-h-[calc(100vh-306px)] my-12'>
@@ -12,7 +68,7 @@ const UpdateJob = () => {
           Update a Job
         </h2>
 
-        <form>
+        <form onSubmit={handleUpdatejob}>
           <div className='grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2'>
             <div>
               <label className='text-gray-700 ' htmlFor='job_title'>
@@ -21,6 +77,7 @@ const UpdateJob = () => {
               <input
                 id='job_title'
                 name='job_title'
+                defaultValue={job?.job_title}
                 type='text'
                 className='block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md  focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40  focus:outline-none focus:ring'
               />
@@ -34,6 +91,7 @@ const UpdateJob = () => {
                 id='emailAddress'
                 type='email'
                 name='email'
+                defaultValue={user?.email}
                 disabled
                 className='block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md  focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40  focus:outline-none focus:ring'
               />
@@ -48,20 +106,21 @@ const UpdateJob = () => {
               />
             </div>
 
-            <div className='flex flex-col gap-2 '>
+            {job.category && <div className='flex flex-col gap-2 '>
               <label className='text-gray-700 ' htmlFor='category'>
                 Category
               </label>
               <select
                 name='category'
                 id='category'
+                defaultValue={job?.category}
                 className='border p-2 rounded-md'
               >
                 <option value='Web Development'>Web Development</option>
                 <option value='Graphics Design'>Graphics Design</option>
                 <option value='Digital Marketing'>Digital Marketing</option>
               </select>
-            </div>
+            </div>}
             <div>
               <label className='text-gray-700 ' htmlFor='min_price'>
                 Minimum Price
@@ -69,6 +128,7 @@ const UpdateJob = () => {
               <input
                 id='min_price'
                 name='min_price'
+                defaultValue={job?.min_price}
                 type='number'
                 className='block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md  focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40  focus:outline-none focus:ring'
               />
@@ -81,6 +141,7 @@ const UpdateJob = () => {
               <input
                 id='max_price'
                 name='max_price'
+                defaultValue={job.max_price}
                 type='number'
                 className='block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md  focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40  focus:outline-none focus:ring'
               />
@@ -94,6 +155,7 @@ const UpdateJob = () => {
               className='block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md  focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40  focus:outline-none focus:ring'
               name='description'
               id='description'
+              defaultValue={job.description}
               cols='30'
             ></textarea>
           </div>
