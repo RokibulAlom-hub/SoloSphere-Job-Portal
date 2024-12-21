@@ -134,13 +134,13 @@ const BidRequests = () => {
                         <span
                           className={`h-1.5 w-1.5 rounded-full bg-yellow-500 `}
                         ></span>
-                        <h2 className='text-sm font-normal '>{bid?.status}</h2>
+                        <h2 className='text-sm font-normal '>{bid?.status?.status}</h2>
                       </div>
                     </td>
                     <td className='px-4 py-4 text-sm whitespace-nowrap'>
                       {/* accept button */}
                       <button
-                       onClick={() =>handleStatus(bid?._id,bid?.status,'In progress')}
+                       onClick={() =>handleStatus(bid?._id,bid?.status?.status,'In progress')}
                         title='Mark Complete'
                         className='text-gray-500 transition-colors duration-200   hover:text-red-500 focus:outline-none disabled:cursor-not-allowed'
                       >
@@ -160,7 +160,7 @@ const BidRequests = () => {
                         </svg>
                       </button>
                       <button
-                       onClick={() =>handleStatus(bid?._id,bid?.status,'rejecteed')}
+                       onClick={() =>handleStatus(bid?._id,bid?.status?.status,'rejecteed')}
                         title='Mark Complete'
                         className='text-gray-500 p-2 btn transition-colors duration-200   hover:text-red-500 focus:outline-none disabled:cursor-not-allowed'
                       >

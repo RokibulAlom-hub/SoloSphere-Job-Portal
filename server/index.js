@@ -41,12 +41,21 @@ async function run() {
     app.get('/alljobs',async(req,res) =>{
       const filter =req.query.filter
       const search =req.query.search;
+      const sort =req.query.sort;
+      let options={}
+      if(sort) options = {sort: { datepicker: sort === 'asc' ? 1 : -1}}
       console.log(search);
       
       let query={}
+      if (search) {
+        query.job_title = {
+            $regex: search, // Use the search term in the regex
+            $options: 'i'   // Case-insensitive search
+        };
+    }
       // query = {categroy: filter}
       if(filter) query.category=filter
-      const result = await jobscollection.find(query).toArray();
+      const result = await jobscollection.find(query,options).toArray();
       res.send(result)
     })
     // get jobs by email
@@ -115,7 +124,7 @@ async function run() {
     })
     // get bid reqwuest by email
     app.get('/bids-req/:email',async(req,res) => {
-      const email = req.params.email;
+      const email = req.params?.email;
       const query = {buyer: email}
       const result = await bidscollection.find(query).toArray();
       res.send(result)
