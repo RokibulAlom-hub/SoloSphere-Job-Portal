@@ -5,15 +5,20 @@ import axios from 'axios'
 
 const AllJobs = () => {
   const [jobs,setJobs] = useState([])
+  const [filter,setFilter] = useState('')
+  const [search,setsearch] = useState('')
   useEffect(()=>{
+    const fetchAlljobs = async() =>{
+      const {data} = await 
+      axios.get(`${import.meta.env.VITE_API_URL}/alljobs?filter=${filter}&search=${search}`)
+      // console.log(data);
+      setJobs(data)
+      
+    }
     fetchAlljobs()
-  },[])
-  const fetchAlljobs = async() =>{
-    const {data} = await axios.get(`${import.meta.env.VITE_API_URL}/alljobs`)
-    // console.log(data);
-    setJobs(data)
-    
-  }
+  },[filter,search])
+  console.log(filter);
+  
   return (
     <div className='container px-6 py-10 mx-auto min-h-[calc(100vh-306px)] flex flex-col justify-between'>
       <div>
@@ -23,6 +28,8 @@ const AllJobs = () => {
               name='category'
               id='category'
               className='border p-4 rounded-lg'
+              onChange={(e) => setFilter(e.target.value)
+              }
             >
               <option value=''>Filter By Category</option>
               <option value='Web Development'>Web Development</option>
@@ -31,12 +38,13 @@ const AllJobs = () => {
             </select>
           </div>
 
-          <form>
+          <form >
             <div className='flex p-1 overflow-hidden border rounded-lg    focus-within:ring focus-within:ring-opacity-40 focus-within:border-blue-400 focus-within:ring-blue-300'>
               <input
                 className='px-6 py-2 text-gray-700 placeholder-gray-500 bg-white outline-none focus:placeholder-transparent'
                 type='text'
                 name='search'
+                onChange={(e) => setsearch(e.target.value)}
                 placeholder='Enter Job Title'
                 aria-label='Enter Job Title'
               />

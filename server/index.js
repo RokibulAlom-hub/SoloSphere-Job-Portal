@@ -39,7 +39,14 @@ async function run() {
     })
     // get all jobs
     app.get('/alljobs',async(req,res) =>{
-      const result = await jobscollection.find().toArray();
+      const filter =req.query.filter
+      const search =req.query.search;
+      console.log(search);
+      
+      let query={}
+      // query = {categroy: filter}
+      if(filter) query.category=filter
+      const result = await jobscollection.find(query).toArray();
       res.send(result)
     })
     // get jobs by email
@@ -96,6 +103,35 @@ async function run() {
         $inc:{bid_count:1}
       }
       const udpateBids = await jobscollection.updateOne(filter,bidupdate)
+      res.send(result)
+    })
+    // get my bids by single
+    app.get('/bids/:email',async(req,res) => {
+      const email = req.params.email;
+      const query = {email}
+      const result = await bidscollection.find(query).toArray();
+      res.send(result)
+
+    })
+    // get bid reqwuest by email
+    app.get('/bids-req/:email',async(req,res) => {
+      const email = req.params.email;
+      const query = {buyer: email}
+      const result = await bidscollection.find(query).toArray();
+      res.send(result)
+
+    })
+    // update status by patch 
+    app.patch('/bid-status-update/:id',async(req,res) => {
+      const id = req.params.id;
+      const {status} = req.body;
+      const filter = {_id: new ObjectId(id)}
+      const update = {
+        $set:{status}
+      }
+      const result =  await bidscollection.updateOne(filter,update)
+      console.log(result);
+      
       res.send(result)
     })
   } finally {

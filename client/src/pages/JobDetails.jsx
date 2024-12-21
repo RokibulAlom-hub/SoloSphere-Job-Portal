@@ -17,7 +17,8 @@ const JobDetails = () => {
     category,
     min_price,
     max_price,buyer} = job
-
+  console.log(job);
+  
   const handleForm =async e =>{
     e.preventDefault()
     const form = e.target;
@@ -26,7 +27,8 @@ const JobDetails = () => {
     const comment = form.comment.value;
     const deadline = startDate;
     const job_id = _id;
-    const bidData ={price,email,comment,deadline,job_id};
+    const bidData ={price,email,comment,deadline,job_id,job_title,category,status:'pending',};
+    bidData.buyer =buyer?.email;
     console.log(bidData);
     // 0.check person
     if(user?.email === buyer?.email) return toast.error('can not apply same person')
